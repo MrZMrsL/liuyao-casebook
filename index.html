@@ -88,8 +88,6 @@ td.num{text-align:center;white-space:nowrap}
 .ysub .kg{color:#fff;background:var(--pend);border-radius:3px;padding:0 4px}
 .g-青龙{background:#3e7a6b}.g-朱雀{background:#b03a2e}.g-勾陈{background:#9c7a3c}
 .g-腾蛇{background:#6e7a58}.g-白虎{background:#7d7d7d}.g-玄武{background:#3a3f4a}
-.fu{font-size:11.5px;color:var(--ink2);border-bottom:1px dashed var(--ink2);white-space:nowrap;overflow:hidden}
-.fu:empty{border:none}
 .ytxt{font-size:14.5px;white-space:nowrap;display:flex;align-items:center;gap:4px;font-weight:600}
 .el5{display:inline-flex;width:17px;height:17px;border-radius:4px;font-size:11px;align-items:center;justify-content:center;color:#fff;font-weight:700;flex:0 0 17px}
 .e-金{background:#b8860b}.e-木{background:#4a7c43}.e-水{background:#3e6b8a}.e-火{background:#b03a2e}.e-土{background:#8a6d3b}
@@ -103,9 +101,19 @@ td.num{text-align:center;white-space:nowrap}
 .kongbadge{font-size:10px;color:#fff;background:var(--pend);border-radius:4px;padding:0 4px;margin-left:2px}
 .gtag{display:inline-block;font-size:11px;color:#fff;background:var(--ink2);border-radius:4px;padding:0 8px;letter-spacing:.2em;margin-bottom:4px}
 .gtag.ben{background:var(--cinnabar)} .gtag.bian{background:var(--gold)} .gtag.hu{background:#3e7a6b}
-.hugua .yao{grid-template-columns:62px;grid-template-areas:"main"}
+.hugua .yao{grid-template-columns:62px;grid-template-areas:"main" "sub"}
 .hugua .ymain{grid-template-columns:62px}
 .hugua{min-width:150px}
+.hugua .ysub{min-height:16px}
+/* ---------- 卦爻辞 ---------- */
+details.yici{margin-top:12px;border-top:1px dashed var(--line);background:transparent;border-radius:0;border:none}
+details.yici summary{padding:8px 0 2px;font-size:13px;color:var(--cinnabar);font-weight:700;text-align:center;letter-spacing:.2em}
+details.yici summary::after{content:"＋";float:none;margin-left:8px}
+details.yici[open] summary::after{content:"－"}
+details.yici .ybody{padding:8px 2px 4px;font-size:12.5px;color:var(--ink2);line-height:1.8;text-align:left}
+details.yici .ybody .gt{color:var(--ink);font-weight:700}
+details.yici .ybody .yl{display:block}
+details.yici .ybody .yl.dong{color:var(--cinnabar);font-weight:700}
 /* ---------- 搜索 ---------- */
 .searchbar{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
 #q{flex:1;min-width:200px;padding:9px 16px;border:1px solid var(--line);border-radius:999px;background:var(--paper);font-family:inherit;font-size:15px;color:var(--ink)}
@@ -115,7 +123,6 @@ td.num{text-align:center;white-space:nowrap}
 details.case summary{list-style:none;cursor:pointer}
 details.case summary::-webkit-details-marker{display:none}
 details.case:not([open]) .case-head{border-bottom:none}
-details.case:not([open]){background:var(--paper2)}
 .case-head .expand-hint{margin-left:6px;font-size:12px;color:var(--pend)}
 .bygua{opacity:.92}
 .bygua .yao{grid-template-columns:112px 62px 22px;grid-template-areas:"main main main" "sub sub sub"}
@@ -303,10 +310,19 @@ function yaoHTML(l,by){
     ${subLine(l)}
   </div>`;
 }
+/* 卦爻辞（可折叠，动爻高亮） */
+function yiciHTML(name,lines){
+  const d=YICI[name];if(!d)return '';
+  const dongIdx=new Set();lines.forEach((l,i)=>{if(l.move)dongIdx.add(5-i)}); // y 数组初→上
+  return `<details class="yici"><summary>卦爻辞</summary><div class="ybody">
+  <p class="gt">【卦辞】${d.t}</p>
+  ${d.y.map((t,i)=>`<span class="yl ${dongIdx.has(i)?'dong':''}">${t}</span>`).join('')}
+  </div></details>`;
+}
 function guaHTML(name,gong,lines,by,tag){
   return `<div class="gua ${by?'bygua':''}"><div style="text-align:center"><span class="gtag ${tag==='本卦'?'ben':'bian'}">${tag}</span></div>
   <div class="gname">${name}</div><div class="ggong">${gong||''}</div>
-  ${lines.map(l=>yaoHTML(by?(l.bian||l):l,by)).join('')}</div>`;
+  ${lines.map(l=>yaoHTML(by?(l.bian||l):l,by)).join('')}${yiciHTML(name,lines)}</div>`;
 }
 /* 八卦（下→上爻 阳=1）与六十四卦名 */
 const TRIG={'111':'乾','110':'兑','101':'离','100':'震','011':'巽','010':'坎','001':'艮','000':'坤'};
@@ -327,9 +343,9 @@ function huGua(lines){ // lines 上→初
 }
 function huGuaHTML(lines){
   const h=huGua(lines);
-  const rows=h.six.map(y=>`<div class="yao"><span class="ymain"><div class="line ${y?'yang':'yin'}"><div class="bar"></div>${y?'':'<div class="bar"></div>'}</div></span></div>`).join('');
+  const rows=h.six.map(y=>`<div class="yao"><span class="ymain" style="justify-content:center"><div class="line ${y?'yang':'yin'}"><div class="bar"></div>${y?'':'<div class="bar"></div>'}</div></span><span class="ysub"></span></div>`).join('');
   return `<div class="gua hugua"><div style="text-align:center"><span class="gtag hu">互卦</span></div>
-  <div class="gname" style="font-size:15px">${h.name}</div><div class="ggong">${h.upper}上 ${h.lower}下</div>${rows}</div>`;
+  <div class="gname" style="font-size:15px">${h.name}</div><div class="ggong">${h.upper}上 ${h.lower}下</div>${rows}${yiciHTML(h.name,[])}</div>`;
 }
 function guapanHTML(c){
   return `<div class="guapan">${guaHTML(c.benName,c.benGong,c.lines,false,'本卦')}${huGuaHTML(c.lines)}${c.bianName?guaHTML(c.bianName,c.bianGong,c.lines,true,'变卦'):''}</div>`;
