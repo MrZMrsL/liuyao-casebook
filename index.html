@@ -88,6 +88,8 @@ td.num{text-align:center;white-space:nowrap}
 .ysub .kg{color:#fff;background:var(--pend);border-radius:3px;padding:0 4px}
 .g-青龙{background:#3e7a6b}.g-朱雀{background:#b03a2e}.g-勾陈{background:#9c7a3c}
 .g-腾蛇{background:#6e7a58}.g-白虎{background:#7d7d7d}.g-玄武{background:#3a3f4a}
+.fu{font-size:11.5px;color:var(--ink2);border-bottom:1px dashed var(--ink2);white-space:nowrap;overflow:hidden}
+.fu:empty{border:none}
 .ytxt{font-size:14.5px;white-space:nowrap;display:flex;align-items:center;gap:4px;font-weight:600}
 .el5{display:inline-flex;width:17px;height:17px;border-radius:4px;font-size:11px;align-items:center;justify-content:center;color:#fff;font-weight:700;flex:0 0 17px}
 .e-金{background:#b8860b}.e-木{background:#4a7c43}.e-水{background:#3e6b8a}.e-火{background:#b03a2e}.e-土{background:#8a6d3b}
@@ -99,7 +101,22 @@ td.num{text-align:center;white-space:nowrap}
 .pos{font-size:12px;font-weight:900;text-align:center;border-radius:4px;padding:1px 0}
 .pos.shi{color:#fff;background:var(--cinnabar)} .pos.ying{color:#fff;background:#3e7a6b}
 .kongbadge{font-size:10px;color:#fff;background:var(--pend);border-radius:4px;padding:0 4px;margin-left:2px}
-.garrow{align-self:center;color:var(--cinnabar);font-size:24px;font-weight:900;padding:0 2px}
+.gtag{display:inline-block;font-size:11px;color:#fff;background:var(--ink2);border-radius:4px;padding:0 8px;letter-spacing:.2em;margin-bottom:4px}
+.gtag.ben{background:var(--cinnabar)} .gtag.bian{background:var(--gold)} .gtag.hu{background:#3e7a6b}
+.hugua .yao{grid-template-columns:62px;grid-template-areas:"main"}
+.hugua .ymain{grid-template-columns:62px}
+.hugua{min-width:150px}
+/* ---------- 搜索 ---------- */
+.searchbar{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+#q{flex:1;min-width:200px;padding:9px 16px;border:1px solid var(--line);border-radius:999px;background:var(--paper);font-family:inherit;font-size:15px;color:var(--ink)}
+#q:focus{outline:none;border-color:var(--cinnabar)}
+#qcount{font-size:13px;color:var(--ink2)}
+/* 折叠案例卡 */
+details.case summary{list-style:none;cursor:pointer}
+details.case summary::-webkit-details-marker{display:none}
+details.case:not([open]) .case-head{border-bottom:none}
+details.case:not([open]){background:var(--paper2)}
+.case-head .expand-hint{margin-left:6px;font-size:12px;color:var(--pend)}
 .bygua{opacity:.92}
 .bygua .yao{grid-template-columns:112px 62px 22px;grid-template-areas:"main main main" "sub sub sub"}
 .bygua .ymain{grid-template-columns:112px 62px 22px}
@@ -150,7 +167,7 @@ footer{margin:60px 0 30px;text-align:center;color:var(--ink2);font-size:13px;bor
   body{background:#fff;font-size:12px}
   nav,#pop{display:none!important}
   .case,.card,details{break-inside:avoid;border-color:#999}
-  details:not([open]) .body{display:block!important}
+  details:not([open]) .body,details.case:not([open]) .case-body{display:block!important}
   summary::after{display:none}
   a{color:inherit;text-decoration:none}
 }
@@ -191,6 +208,10 @@ footer{margin:60px 0 30px;text-align:center;color:var(--ink2);font-size:13px;bor
 <section id="cases">
   <h2>案例库</h2>
   <p class="sec-desc">每案含全要素卦盘（六神·纳甲·六亲·世应·伏神·动变·空亡）与断语逐条验证。点按带虚线下划线的术语可见白话注释。</p>
+  <div class="searchbar">
+    <input id="q" type="search" placeholder="搜索案例：卦名 / 占问 / 断语 / 规则编号…">
+    <span id="qcount"></span>
+  </div>
   <div class="tabs" id="tabs"></div>
   <div id="caselist"></div>
 </section>
@@ -282,27 +303,55 @@ function yaoHTML(l,by){
     ${subLine(l)}
   </div>`;
 }
-function guaHTML(name,gong,lines,by){
-  return `<div class="gua ${by?'bygua':''}"><div class="gname">${name}</div><div class="ggong">${gong||''}</div>
+function guaHTML(name,gong,lines,by,tag){
+  return `<div class="gua ${by?'bygua':''}"><div style="text-align:center"><span class="gtag ${tag==='本卦'?'ben':'bian'}">${tag}</span></div>
+  <div class="gname">${name}</div><div class="ggong">${gong||''}</div>
   ${lines.map(l=>yaoHTML(by?(l.bian||l):l,by)).join('')}</div>`;
 }
+/* 八卦（下→上爻 阳=1）与六十四卦名 */
+const TRIG={'111':'乾','110':'兑','101':'离','100':'震','011':'巽','010':'坎','001':'艮','000':'坤'};
+const GUA64={'乾乾':'乾为天','乾兑':'天泽履','乾离':'天火同人','乾震':'天雷无妄','乾巽':'天风姤','乾坎':'天水讼','乾艮':'天山遁','乾坤':'天地否',
+'兑乾':'泽天夬','兑兑':'兑为泽','兑离':'泽火革','兑震':'泽雷随','兑巽':'泽风大过','兑坎':'泽水困','兑艮':'泽山咸','兑坤':'泽地萃',
+'离乾':'火天大有','离兑':'火泽睽','离离':'离为火','离震':'火雷噬嗑','离巽':'火风鼎','离坎':'火水未济','离艮':'火山旅','离坤':'火地晋',
+'震乾':'雷天大壮','震兑':'雷泽归妹','震离':'雷火丰','震震':'震为雷','震巽':'雷风恒','震坎':'雷水解','震艮':'雷山小过','震坤':'雷地豫',
+'巽乾':'风天小畜','巽兑':'风泽中孚','巽离':'风火家人','巽震':'风雷益','巽巽':'巽为风','巽坎':'风水涣','巽艮':'风山渐','巽坤':'风地观',
+'坎乾':'水天需','坎兑':'水泽节','坎离':'水火既济','坎震':'水雷屯','坎巽':'水风井','坎坎':'坎为水','坎艮':'水山蹇','坎坤':'水地比',
+'艮乾':'山天大畜','艮兑':'山泽损','艮离':'山火贲','艮震':'山雷颐','艮巽':'山风蛊','艮坎':'山水蒙','艮艮':'艮为山','艮坤':'山地剥',
+'坤乾':'地天泰','坤兑':'地泽临','坤离':'地火明夷','坤震':'地雷复','坤巽':'地风升','坤坎':'地水师','坤艮':'地山谦','坤坤':'坤为地'};
+/* 互卦：下卦取二三四爻、上卦取三四五爻（自下而上） */
+function huGua(lines){ // lines 上→初
+  const L=idx=>lines[6-idx].yang?1:0; // 第几爻（自下而上）
+  const lo=TRIG[''+L(2)+L(3)+L(4)], up=TRIG[''+L(3)+L(4)+L(5)];
+  return {name:GUA64[up+lo]||'—', lower:lo, upper:up,
+    six:[L(5),L(4),L(3),L(4),L(3),L(2)]}; // 上→下六爻阴阳
+}
+function huGuaHTML(lines){
+  const h=huGua(lines);
+  const rows=h.six.map(y=>`<div class="yao"><span class="ymain"><div class="line ${y?'yang':'yin'}"><div class="bar"></div>${y?'':'<div class="bar"></div>'}</div></span></div>`).join('');
+  return `<div class="gua hugua"><div style="text-align:center"><span class="gtag hu">互卦</span></div>
+  <div class="gname" style="font-size:15px">${h.name}</div><div class="ggong">${h.upper}上 ${h.lower}下</div>${rows}</div>`;
+}
 function guapanHTML(c){
-  const ben=guaHTML(c.benName,c.benGong,c.lines,false);
-  const bian=c.bianName?`<div class="garrow">→</div>`+guaHTML(c.bianName,c.bianGong,c.lines,true):'';
-  return `<div class="guapan">${ben}${bian}</div>`;
+  return `<div class="guapan">${guaHTML(c.benName,c.benGong,c.lines,false,'本卦')}${huGuaHTML(c.lines)}${c.bianName?guaHTML(c.bianName,c.bianGong,c.lines,true,'变卦'):''}</div>`;
 }
 
 /* 案例 */
 const cats=['全部','射覆','失物','财运','其他'];
 $('#tabs').innerHTML=cats.map((c,i)=>`<button class="tab${i===0?' on':''}" data-c="${c}">${c}</button>`).join('');
 function mark(ok){return ok===true?['ok','✓']:ok===false?['no','✗']:ok==='half'?['half','◐']:['pend','…']}
-function renderCases(cat){
-  const list=CASES.filter(c=>cat==='全部'||c.cat===cat);
-  $('#caselist').innerHTML=list.map(c=>{
+let curCat='全部';
+function caseText(c){return [c.id,c.cat,c.title,c.question,c.benName,c.bianName||'',c.resultText,c.review,c.newRules.join(' '),c.duanyu.map(d=>d.t).join(' ')].join(' ')}
+function renderCases(){
+  const kw=($('#q').value||'').trim();
+  const list=CASES.filter(c=>(curCat==='全部'||c.cat===curCat)&&(!kw||caseText(c).includes(kw)));
+  $('#qcount').textContent=kw?`命中 ${list.length} / ${CASES.length} 案`:`共 ${CASES.length} 案，点击标题行展开`;
+  $('#caselist').innerHTML=list.map((c,i)=>{
     const rb=c.result==='对'?'b-ok':c.result==='错'?'b-bad':c.result==='半对'?'b-half':'b-pend';
-    return `<div class="case">
-    <div class="case-head"><span class="cid">${c.id}</span><span class="badge ${rb}">${c.result}</span>
-    <span class="ct">${c.title}</span><span class="meta">${c.cat} · ${c.date}</span></div>
+    const open=kw?true:i===0;
+    return `<details class="case" ${open?'open':''}>
+    <summary class="case-head"><span class="cid">${c.id}</span><span class="badge ${rb}">${c.result}</span>
+    <span class="ct">${c.title}</span><span style="font-size:13px;color:var(--ink2)">${c.benName}${c.bianName?' → '+c.bianName:''}</span>
+    <span class="meta">${c.cat} · ${c.date}<span class="expand-hint">▾</span></span></summary>
     <div class="case-body">
       <div class="q">【占问】${c.question}</div>
       <div class="tl">【时间】<b>${c.time}</b>　【空亡】${c.kong}　【神煞】${c.shensha}</div>
@@ -312,13 +361,15 @@ function renderCases(cat){
       <div class="resbox"><b>结果：</b>${c.resultText}</div>
       <div class="revbox"><b>复盘：</b>${termify(esc(c.review))}
       ${c.newRules.length?`<div class="rtags">产出规则 ${c.newRules.map(r=>`<span class="rtag">${r}</span>`).join('')}</div>`:''}</div>
-    </div></div>`;
-  }).join('');
+    </div></details>`;
+  }).join('')||'<p style="color:var(--ink2)">无匹配案例</p>';
+  bindTerms();
 }
-renderCases('全部');
+renderCases();
+$('#q').addEventListener('input',renderCases);
 $('#tabs').addEventListener('click',e=>{
   if(e.target.dataset.c){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
-  e.target.classList.add('on');renderCases(e.target.dataset.c);bindTerms();}
+  e.target.classList.add('on');curCat=e.target.dataset.c;renderCases();}
 });
 
 /* 规则 */
