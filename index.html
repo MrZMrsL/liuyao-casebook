@@ -74,28 +74,33 @@ td.num{text-align:center;white-space:nowrap}
 .tl{font-size:14px;color:var(--ink2);margin-bottom:18px}
 .tl b{color:var(--ink)}
 /* ---------- 卦盘 ---------- */
-.guapan{display:flex;justify-content:center;gap:18px;align-items:flex-start;overflow-x:auto;padding:18px 6px;background:var(--paper);border:1px solid var(--line);border-radius:10px;margin:14px 0}
-.gua{min-width:230px}
-.gua .gname{text-align:center;font-weight:900;font-size:17px;letter-spacing:.15em}
-.gua .ggong{text-align:center;font-size:12px;color:var(--ink2);margin-bottom:10px}
-.yao{display:flex;align-items:center;gap:8px;height:34px}
-.god{flex:0 0 34px;font-size:12px;text-align:center;border-radius:5px;padding:1px 0;color:#fff;font-weight:700}
+.guapan{display:flex;justify-content:center;gap:14px;align-items:stretch;overflow-x:auto;padding:20px 14px;background:var(--paper);border:1px solid var(--line);border-radius:12px;margin:14px 0}
+.gua{min-width:300px;background:var(--paper2);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.gua .gname{text-align:center;font-weight:900;font-size:18px;letter-spacing:.15em}
+.gua .ggong{text-align:center;font-size:12px;color:var(--ink2);margin-bottom:12px;padding-bottom:8px;border-bottom:1px dashed var(--line)}
+.yao{display:grid;grid-template-columns:38px 70px 108px 62px 18px 22px;align-items:center;gap:6px;height:36px}
+.god{font-size:12px;text-align:center;border-radius:5px;padding:2px 0;color:#fff;font-weight:700;letter-spacing:.05em}
 .g-青龙{background:#3e7a6b}.g-朱雀{background:#b03a2e}.g-勾陈{background:#9c7a3c}
 .g-腾蛇{background:#6e7a58}.g-白虎{background:#7d7d7d}.g-玄武{background:#3a3f4a}
-.fu{flex:0 0 auto;font-size:11.5px;color:var(--ink2);border-bottom:1px dashed var(--ink2);white-space:nowrap}
-.ytxt{flex:0 0 92px;font-size:14.5px;white-space:nowrap}
-.ytxt .el{color:var(--ink2);font-size:12.5px}
-.line{flex:0 0 64px;height:10px;position:relative;display:flex;align-items:center}
-.line .bar{background:var(--ink);height:9px;border-radius:2px}
+.fu{font-size:11.5px;color:var(--ink2);border-bottom:1px dashed var(--ink2);white-space:nowrap;overflow:hidden}
+.fu:empty{border:none}
+.ytxt{font-size:14.5px;white-space:nowrap;display:flex;align-items:center;gap:4px;font-weight:600}
+.el5{display:inline-flex;width:17px;height:17px;border-radius:4px;font-size:11px;align-items:center;justify-content:center;color:#fff;font-weight:700;flex:0 0 17px}
+.e-金{background:#b8860b}.e-木{background:#4a7c43}.e-水{background:#3e6b8a}.e-火{background:#b03a2e}.e-土{background:#8a6d3b}
+.line{height:12px;display:flex;align-items:center}
+.line .bar{background:var(--ink);height:10px;border-radius:2px}
 .line.yang .bar{width:100%}
 .line.yin{justify-content:space-between}.line.yin .bar{width:44%}
-.mv{color:var(--cinnabar);font-weight:900;font-size:16px;width:16px;text-align:center}
-.pos{font-size:13px;font-weight:900;width:18px}
-.pos.shi{color:var(--cinnabar)} .pos.ying{color:#3e7a6b}
+.mv{color:var(--cinnabar);font-weight:900;font-size:16px;text-align:center}
+.pos{font-size:12px;font-weight:900;text-align:center;border-radius:4px;padding:1px 0}
+.pos.shi{color:#fff;background:var(--cinnabar)} .pos.ying{color:#fff;background:#3e7a6b}
 .kongbadge{font-size:10px;color:#fff;background:var(--pend);border-radius:4px;padding:0 4px;margin-left:2px}
-.garrow{align-self:center;color:var(--cinnabar);font-size:22px;font-weight:900;padding:0 2px}
-.bygua .ytxt{flex:0 0 84px;color:var(--ink2)}
+.garrow{align-self:center;color:var(--cinnabar);font-size:24px;font-weight:900;padding:0 2px}
+.bygua{opacity:.92}
+.bygua .yao{grid-template-columns:100px 62px 22px}
+.bygua .ytxt{color:var(--ink2);font-weight:400}
 .bygua .line .bar{background:#8a8073}
+@media(max-width:640px){.gua{min-width:252px;padding:12px 10px}.yao{grid-template-columns:32px 50px 92px 44px 14px 18px;gap:3px}.ytxt{font-size:13.5px}.fu{font-size:10.5px}}
 /* ---------- 断语 ---------- */
 .dy{list-style:none;margin:8px 0}
 .dy li{padding:8px 12px;border-left:3px solid var(--line);margin-bottom:6px;background:var(--paper);border-radius:0 8px 8px 0;font-size:14.5px}
@@ -148,7 +153,6 @@ footer{margin:60px 0 30px;text-align:center;color:var(--ink2);font-size:13px;bor
   h1{font-size:32px}
   .case-body{padding:16px}
   .guapan{justify-content:flex-start}
-  .ytxt{flex-basis:80px;font-size:13.5px}
 }
 </style>
 </head>
@@ -256,15 +260,16 @@ $('#loop').innerHTML=FLOW.loop.map((s,i)=>`<span>${s}</span>${i<FLOW.loop.length
 /* 卦盘 */
 function yaoHTML(l,by){
   const bars=`<div class="line ${l.yang?'yang':'yin'}"><div class="bar"></div>${l.yang?'':'<div class="bar"></div>'}</div>`;
-  if(by) return `<div class="yao"><span class="ytxt">${l.rel} ${l.gz}<span class="el">${l.el||''}</span></span>${bars}
-    <span class="pos ${l.shi?'shi':l.ying?'ying':''}">${l.shi?'世':l.ying?'应':''}</span></div>`;
+  const pos=`<span class="pos ${l.shi?'shi':l.ying?'ying':''}">${l.shi?'世':l.ying?'应':''}</span>`;
+  const el5=l.el?`<span class="el5 e-${l.el}">${l.el}</span>`:'';
+  if(by) return `<div class="yao"><span class="ytxt">${l.rel} ${l.gz}${el5}</span>${bars}${pos}</div>`;
   return `<div class="yao">
     <span class="god g-${l.god}">${l.god}</span>
-    ${l.fu?`<span class="fu">伏 ${l.fu}</span>`:'<span class="fu" style="visibility:hidden"></span>'}
-    <span class="ytxt">${termify(esc(l.rel))} ${l.gz}<span class="el">${l.el}</span>${l.kong?'<span class="kongbadge">空</span>':''}</span>
+    <span class="fu">${l.fu?'伏 '+l.fu:''}</span>
+    <span class="ytxt">${termify(esc(l.rel))} ${l.gz}${el5}${l.kong?'<span class="kongbadge">空</span>':''}</span>
     ${bars}
     <span class="mv">${l.move==='o'?'○':l.move==='x'?'×':''}</span>
-    <span class="pos ${l.shi?'shi':l.ying?'ying':''}">${l.shi?'世':l.ying?'应':''}</span>
+    ${pos}
   </div>`;
 }
 function guaHTML(name,gong,lines,by){
