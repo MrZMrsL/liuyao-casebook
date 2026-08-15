@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#f6f1e7"/>
+  <rect x="28" y="28" width="456" height="456" rx="72" fill="none" stroke="#a63a2a" stroke-width="10"/>
+  <!-- 简化卦象：三阳一阴 + 朱砂点缀 -->
+  <g fill="#2e2a26">
+    <rect x="136" y="150" width="240" height="26" rx="8"/>
+    <rect x="136" y="222" width="240" height="26" rx="8"/>
+    <rect x="136" y="294" width="103" height="26" rx="8"/><rect x="273" y="294" width="103" height="26" rx="8"/>
+    <rect x="136" y="366" width="240" height="26" rx="8"/>
+  </g>
+  <circle cx="256" cy="96" r="14" fill="#a63a2a"/>
+</svg>

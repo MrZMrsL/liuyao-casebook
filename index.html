@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>六爻案例库 · 断卦复盘看板</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23f6f1e7'/><text x='16' y='23' font-size='20' text-anchor='middle' fill='%23a63a2a'>䷤</text></svg>">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="theme-color" content="#f6f1e7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1825" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="description" content="六爻断卦案例复盘库：全要素卦盘、断语逐条验证、纠偏规则库 R1–R17、术语白话词典。">
 <style>
 :root{
   --paper:#f6f1e7; --paper2:#efe8d8; --ink:#2e2a26; --ink2:#6b6157;
@@ -269,9 +276,62 @@ footer{margin:60px 0 30px;text-align:center;color:var(--ink2);font-size:13px;bor
 .back-top{position:fixed;bottom:24px;right:24px;width:40px;height:40px;border-radius:50%;background:var(--ink);color:var(--paper);border:none;font-size:18px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .3s;z-index:40}
 .back-top.show{opacity:.7;pointer-events:auto}
 .back-top:hover{opacity:1}
+/* ---- 深链落地高亮闪烁 ---- */
+@keyframes flashIn{0%,100%{box-shadow:0 0 0 0 transparent}25%,60%{box-shadow:0 0 0 3px var(--cinnabar),0 0 24px rgba(166,58,42,.25)}}
+.flash-target{animation:flashIn 1.6s ease .2s 2}
+/* ---- 案例工具条 ---- */
+.case-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding-bottom:12px;border-bottom:1px dashed var(--line)}
+.tool-btn{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 14px;font-size:13px;font-family:inherit;color:var(--ink2);cursor:pointer;transition:border-color .2s,color .2s}
+.tool-btn:hover{border-color:var(--cinnabar);color:var(--cinnabar)}
+.tool-btn.on{background:var(--cinnabar);border-color:var(--cinnabar);color:#fff}
+/* ---- 案例对比 ---- */
+#cmp-bar{position:fixed;left:50%;bottom:20px;transform:translate(-50%,140%);z-index:60;display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--paper);border-radius:999px;padding:8px 10px 8px 20px;box-shadow:0 10px 36px rgba(0,0,0,.35);transition:transform .3s cubic-bezier(.32,.72,.24,1);max-width:calc(100vw - 32px)}
+#cmp-bar.show{transform:translate(-50%,0)}
+#cmp-bar .cb-lab{font-size:13px;letter-spacing:.08em;white-space:nowrap}
+#cmp-bar .cb-items{font-size:12.5px;display:flex;gap:6px;flex-wrap:wrap}
+#cmp-bar .cb-item{background:rgba(255,255,255,.14);border-radius:6px;padding:2px 8px}
+#cmp-go{border:none;background:var(--cinnabar);color:#fff;border-radius:999px;padding:6px 16px;font-size:13.5px;font-family:inherit;cursor:pointer;white-space:nowrap}
+#cmp-go:disabled{opacity:.45;cursor:not-allowed}
+#cmp-clear{border:none;background:transparent;color:var(--paper);opacity:.75;font-size:15px;cursor:pointer;padding:4px 8px}
+.cmp-mask{position:fixed;inset:0;background:rgba(24,20,30,.6);z-index:90;opacity:0;pointer-events:none;transition:opacity .25s}
+.cmp-mask.show{opacity:1;pointer-events:auto}
+#cmp-view{position:fixed;inset:0;z-index:95;background:var(--paper);overflow-y:auto;padding:24px 20px 80px;visibility:hidden;transform:translateY(3%);opacity:0;transition:transform .3s,opacity .3s,visibility .3s}
+#cmp-view.show{visibility:visible;transform:translateY(0);opacity:1}
+#cmp-view .cv-head{max-width:1100px;margin:0 auto 18px;display:flex;align-items:center;gap:12px}
+#cmp-view .cv-head h2{margin-bottom:0}
+#cmp-close{margin-left:auto;border:1px solid var(--line);background:var(--paper2);border-radius:999px;padding:7px 18px;font-family:inherit;font-size:14px;color:var(--ink);cursor:pointer}
+.cmp-cols{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:860px){.cmp-cols{grid-template-columns:1fr}}
+.cmp-col{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:18px}
+.cmp-col.cmp-a{border-top:3px solid var(--cinnabar)} .cmp-col.cmp-b{border-top:3px solid var(--gold)}
+.cmp-col .cc-title{font-weight:900;font-size:17px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.cmp-col .cc-meta{font-size:12.5px;color:var(--ink2);margin:4px 0 10px}
+.cmp-col .guapan{flex-wrap:wrap;justify-content:center}
+.cmp-shared{max-width:1100px;margin:16px auto 0;border:1.5px dashed var(--cinnabar);border-radius:10px;padding:14px 18px;font-size:14px}
+/* ---- 术语词典 ---- */
+#gq{width:100%;max-width:340px;padding:9px 16px;border:1px solid var(--line);border-radius:999px;background:var(--paper);font-family:inherit;font-size:16px;color:var(--ink);margin-bottom:16px}
+#gq:focus{outline:none;border-color:var(--cinnabar)}
+.gloss-group{margin-bottom:24px}
+.gloss-group .gg-title{font-size:16px;font-weight:900;letter-spacing:.12em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.gloss-group .gg-title::before{content:"";width:16px;height:2.5px;background:var(--gold)}
+.gloss-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.gcard{background:var(--paper2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;transition:border-color .2s}
+.gcard:hover{border-color:var(--gold)}
+.gcard .gt{font-weight:900;color:var(--cinnabar);margin-bottom:5px;letter-spacing:.05em}
+.gcard .gd{font-size:14px;color:var(--ink);line-height:1.8}
+/* ---- 分享卡片弹层 ---- */
+#share-mask{position:fixed;inset:0;background:rgba(24,20,30,.6);z-index:96;opacity:0;pointer-events:none;transition:opacity .25s}
+#share-mask.show{opacity:1;pointer-events:auto}
+#share-modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-46%) scale(.96);z-index:97;background:var(--paper2);border:1px solid var(--line);border-radius:16px;padding:20px;max-width:min(92vw,460px);max-height:88vh;overflow-y:auto;opacity:0;visibility:hidden;transition:all .28s cubic-bezier(.32,.72,.24,1)}
+#share-modal.show{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}
+#share-modal .sm-title{font-weight:900;letter-spacing:.1em;margin-bottom:12px;font-size:16px}
+#share-canvas{width:100%;height:auto;border-radius:10px;border:1px solid var(--line);display:block}
+#share-modal .sm-actions{display:flex;gap:10px;margin-top:14px;justify-content:flex-end}
+#share-dl{border:none;background:var(--cinnabar);color:#fff;border-radius:999px;padding:8px 20px;font-family:inherit;font-size:14px;cursor:pointer}
+#share-close{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 20px;font-family:inherit;font-size:14px;color:var(--ink);cursor:pointer}
 @media print{
   body{background:#fff;font-size:12px}
-  nav,#pop,.back-top,.theme-toggle{display:none!important}
+  nav,#pop,.back-top,.theme-toggle,#cmp-bar,#cmp-view,#share-modal,#share-mask,.case-tools{display:none!important}
   .case,.card,details{break-inside:avoid;border-color:#999}
   details:not([open]) .body,details.case:not([open]) .case-body{display:block!important}
   summary::after{display:none}
@@ -316,7 +376,7 @@ footer{margin:60px 0 30px;text-align:center;color:var(--ink2);font-size:13px;bor
   <div class="updated">最后更新 <span id="upd"></span> · 脱敏公开版</div>
 </header>
 <nav><div class="wrap">
-  <a href="#dash">看板</a><a href="#flow">流程</a><a href="#cases">案例</a><a href="#rules">规则库</a><a href="#appendix">附录典籍</a>
+  <a href="#dash">看板</a><a href="#flow">流程</a><a href="#cases">案例</a><a href="#rules">规则库</a><a href="#glossary">术语词典</a><a href="#appendix">附录典籍</a>
   <button class="theme-toggle" id="themeBtn" title="切换深色模式">月</button>
 </div></nav>
 <div class="wrap">
@@ -353,6 +413,12 @@ footer{margin:60px 0 30px;text-align:center;color:var(--ink2);font-size:13px;bor
   <div class="rule-filters" id="ruleFilters"></div>
   <div id="rulelist"></div>
 </section>
+<section id="glossary">
+  <h2>术语词典</h2>
+  <p class="sec-desc">断卦术语白话速查，按类别陈列。点击卡片可复制词条，案例中带虚线的词均可点出同样的注释。</p>
+  <input id="gq" type="search" placeholder="筛选术语…">
+  <div id="glosslist"></div>
+</section>
 <section id="appendix">
   <h2>附录 · 方法论与工具书</h2>
   <p class="sec-desc">默认折叠，点击展开全文。</p>
@@ -365,6 +431,30 @@ footer{margin:60px 0 30px;text-align:center;color:var(--ink2);font-size:13px;bor
 <div id="sheet-mask"></div>
 <div id="pop-sheet"><div class="grab"></div><button id="sheet-close" aria-label="关闭">✕</button><div class="pt"></div><div class="pb"></div></div>
 <button class="back-top" id="backTop" title="回到顶部">↑</button>
+<!-- 案例对比浮动条 -->
+<div id="cmp-bar">
+  <span class="cb-lab">⚖ 对比</span>
+  <span class="cb-items" id="cmp-items"></span>
+  <button id="cmp-go" disabled>对照</button>
+  <button id="cmp-clear" title="清空">✕</button>
+</div>
+<!-- 案例对比全屏视图 -->
+<div class="cmp-mask" id="cmp-mask"></div>
+<div id="cmp-view" role="dialog" aria-label="案例对比">
+  <div class="cv-head"><h2>案例对照</h2><button id="cmp-close">关闭 ✕</button></div>
+  <div class="cmp-cols" id="cmp-cols"></div>
+  <div id="cmp-foot"></div>
+</div>
+<!-- 分享卡片弹层 -->
+<div id="share-mask"></div>
+<div id="share-modal" role="dialog" aria-label="分享卡片">
+  <div class="sm-title">分享卡片</div>
+  <canvas id="share-canvas" width="900" height="1200"></canvas>
+  <div class="sm-actions">
+    <button id="share-close">取消</button>
+    <button id="share-dl">下载图片</button>
+  </div>
+</div>
 <script src="assets/data.js"></script>
 <script>
 /* ================= 工具 ================= */
@@ -620,35 +710,54 @@ function caseText(c){return[c.id,c.cat,c.title,c.question,c.benName,c.bianName||
 
 let curCat='全部',curKw='';
 
+/* 案例卡 HTML 缓存：内容静态，避免每次筛选/搜索全量重渲染 termify 正则开销 */
+const cardCache=new Map();
+function caseCardHTML(c,open){
+  if(cardCache.has(c.id)){
+    return cardCache.get(c.id).replace('§OPEN§',open?' open':'');
+  }
+  const rb=c.result==='对'?'b-ok':c.result==='错'?'b-bad':c.result==='半对'?'b-half':'b-pend';
+  const rc=resultClass(c.result);
+  const conf=confMap[c.id];
+  const summary=c.duanyu.length?c.duanyu[0].t:'';
+  const summaryShort=summary.length>40?summary.slice(0,40)+'…':summary;
+  const confBar=conf?`<div class="conf-bar"><span class="conf-label">置信度</span><div class="conf-track"><div class="conf-fill" style="width:${conf}%"></div></div><span class="conf-label">${conf}%</span></div>`:'';
+  const ruleTags=c.newRules.length?`<div class="rtags" style="margin-top:6px">产出 ${c.newRules.map(r=>`<a class="rtag" href="#rules">${r}</a>`).join('')}</div>`:'';
+  const html=`<details class="case ${rc}" id="${c.id}"§OPEN§>
+  <summary class="case-head"><span class="cid">${c.id}</span><span class="badge ${rb}">${c.result}</span>
+  <span class="ct">${c.title}</span><span style="font-size:13px;color:var(--ink2)">${c.benName}${c.bianName?' → '+c.bianName:''}</span>
+  <span class="meta">${c.cat} · ${c.date}<span class="expand-hint">▾</span></span></summary>
+  <div class="case-summary">${summaryShort}${confBar}</div>
+  <div class="case-body">
+    <div class="case-tools">
+      <button class="tool-btn" data-act="copy" data-id="${c.id}">🔗 复制链接</button>
+      <button class="tool-btn" data-act="share" data-id="${c.id}">🎴 分享卡片</button>
+      <button class="tool-btn" data-act="cmp" data-id="${c.id}" id="cmpbtn-${c.id}">⚖ 加入对比</button>
+    </div>
+    <div class="q">【占问】${c.question}</div>
+    <div class="tl">【时间】<b>${c.time}</b>　【空亡】${c.kong}　【神煞】${c.shensha}</div>
+    ${guapanHTML(c)}
+    <h3 style="font-size:16px">断语逐条验证</h3>
+    <ul class="dy">${c.duanyu.map(d=>{const[cl,m]=mark(d.ok);return `<li class="${cl}"><span class="mk">${m}</span>${termify(esc(d.t))}</li>`}).join('')}</ul>
+    <div class="resbox"><b>结果：</b>${c.resultText}</div>
+    <div class="revbox"><b>复盘：</b>${termify(esc(c.review))}${ruleTags}</div>
+    ${relatedHTML(c)}
+  </div></details>`;
+  cardCache.set(c.id,html);
+  return html.replace('§OPEN§',open?' open':'');
+}
+
 function renderCases(){
   const kw=curKw.trim();
   const list=CASES.filter(c=>(curCat==='全部'||c.cat===curCat)&&(!kw||caseText(c).includes(kw)));
   $('#qcount').textContent=kw?`命中 ${list.length} / ${CASES.length} 案`:`共 ${CASES.length} 案，点击标题行展开`;
-  $('#caselist').innerHTML=list.map((c,i)=>{
-    const rb=c.result==='对'?'b-ok':c.result==='错'?'b-bad':c.result==='半对'?'b-half':'b-pend';
-    const rc=resultClass(c.result);
+  const frag=document.createElement('div');
+  frag.innerHTML=list.map((c,i)=>{
     const open=kw?true:i===0;
-    const conf=confMap[c.id];
-    const summary=c.duanyu.length?c.duanyu[0].t:'';
-    const summaryShort=summary.length>40?summary.slice(0,40)+'…':summary;
-    const confBar=conf?`<div class="conf-bar"><span class="conf-label">置信度</span><div class="conf-track"><div class="conf-fill" style="width:${conf}%"></div></div><span class="conf-label">${conf}%</span></div>`:'';
-    const ruleTags=c.newRules.length?`<div class="rtags" style="margin-top:6px">产出 ${c.newRules.map(r=>`<a class="rtag" href="#rules">${r}</a>`).join('')}</div>`:'';
-    return `<details class="case ${rc}" id="${c.id}" ${open?'open':''}>
-    <summary class="case-head"><span class="cid">${c.id}</span><span class="badge ${rb}">${c.result}</span>
-    <span class="ct">${c.title}</span><span style="font-size:13px;color:var(--ink2)">${c.benName}${c.bianName?' → '+c.bianName:''}</span>
-    <span class="meta">${c.cat} · ${c.date}<span class="expand-hint">▾</span></span></summary>
-    <div class="case-summary">${summaryShort}${confBar}</div>
-    <div class="case-body">
-      <div class="q">【占问】${c.question}</div>
-      <div class="tl">【时间】<b>${c.time}</b>　【空亡】${c.kong}　【神煞】${c.shensha}</div>
-      ${guapanHTML(c)}
-      <h3 style="font-size:16px">断语逐条验证</h3>
-      <ul class="dy">${c.duanyu.map(d=>{const[cl,m]=mark(d.ok);return `<li class="${cl}"><span class="mk">${m}</span>${termify(esc(d.t))}</li>`}).join('')}</ul>
-      <div class="resbox"><b>结果：</b>${c.resultText}</div>
-      <div class="revbox"><b>复盘：</b>${termify(esc(c.review))}${ruleTags}</div>
-      ${relatedHTML(c)}
-    </div></details>`;
+    return caseCardHTML(c,open);
   }).join('')||'<p style="color:var(--ink2)">无匹配案例</p>';
+  $('#caselist').replaceChildren(frag);
+  syncCmpButtons();
   bindTerms();
   if(kw){
     $$('#caselist details.case').forEach(d=>highlightSearch(d,kw));
@@ -662,8 +771,12 @@ observer.observe(document.documentElement,{attributes:true,attributeFilter:['dat
 
 renderCases();
 
-/* 搜索 */
-$('#q').addEventListener('input',e=>{curKw=e.target.value;renderCases();});
+/* 搜索（防抖：输入停 120ms 再重渲染，案例多时依然流畅） */
+let qTimer=null;
+$('#q').addEventListener('input',e=>{
+  clearTimeout(qTimer);
+  qTimer=setTimeout(()=>{curKw=e.target.value;renderCases();},120);
+});
 
 /* 分类筛选 */
 $('#tabs').addEventListener('click',e=>{
@@ -678,12 +791,17 @@ $('#tabs').addEventListener('click',e=>{
 /* ================= 深链 ================= */
 function applyDeepLink(){
   const hash=location.hash;
-  if(!hash||hash==='#dash'||hash==='#flow'||hash==='#cases'||hash==='#rules'||hash==='#appendix')return;
+  if(!hash||hash==='#dash'||hash==='#flow'||hash==='#cases'||hash==='#rules'||hash==='#glossary'||hash==='#appendix')return;
   const id=hash.slice(1);
   const el=document.getElementById(id);
   if(el&&el.tagName==='DETAILS'){
     el.open=true;
-    setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),100);
+    setTimeout(()=>{
+      el.scrollIntoView({behavior:'smooth',block:'start'});
+      el.classList.remove('flash-target');
+      void el.offsetWidth;               /* 重启动画 */
+      el.classList.add('flash-target');
+    },100);
   }
 }
 window.addEventListener('hashchange',applyDeepLink);
@@ -830,6 +948,252 @@ document.addEventListener('keydown',e=>{
     if(e.key==='j'&&openIdx<cases.length-1){cases.forEach(c=>c.open=false);cases[openIdx+1].open=true;cases[openIdx+1].scrollIntoView({behavior:'smooth',block:'start'});}
     if(e.key==='k'&&openIdx>0){cases.forEach(c=>c.open=false);cases[openIdx-1].open=true;cases[openIdx-1].scrollIntoView({behavior:'smooth',block:'start'});}
   }
+});
+
+/* ================= 案例工具条：复制链接 / 分享卡片 / 加入对比 ================= */
+let toastTimer=null;
+function toast(msg){
+  let t=$('#toast');
+  if(!t){t=document.createElement('div');t.id='toast';document.body.appendChild(t);}
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),1800);
+}
+async function copyLink(id){
+  const url=location.origin+location.pathname+'#'+id;
+  try{
+    await navigator.clipboard.writeText(url);
+    toast('✓ 链接已复制：'+id);
+  }catch(e){
+    /* 降级：老浏览器/非安全上下文 */
+    const ta=document.createElement('textarea');
+    ta.value=url;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');toast('✓ 链接已复制：'+id);}
+    catch(e2){toast('复制失败，地址栏链接为：#'+id);}
+    ta.remove();
+  }
+}
+
+/* ---- 案例对比 ---- */
+let cmpSel=[];
+function syncCmpButtons(){
+  cmpSel.forEach(id=>{
+    const b=$('#cmpbtn-'+id);
+    if(b){b.classList.add('on');b.textContent='✓ 已加入对比';}
+  });
+}
+function toggleCmp(id){
+  const i=cmpSel.indexOf(id);
+  if(i>=0)cmpSel.splice(i,1);
+  else{
+    if(cmpSel.length>=2){cmpSel.shift();renderCases();}  /* 满两个再选则挤掉最早的 */
+    cmpSel.push(id);
+  }
+  renderCases();
+  updateCmpBar();
+}
+function updateCmpBar(){
+  const bar=$('#cmp-bar');
+  $('#cmp-items').innerHTML=cmpSel.map(id=>`<span class="cb-item">${id}</span>`).join('');
+  $('#cmp-go').disabled=cmpSel.length!==2;
+  bar.classList.toggle('show',cmpSel.length>0);
+}
+function cmpColHTML(c,slot){
+  const rb=c.result==='对'?'b-ok':c.result==='错'?'b-bad':c.result==='半对'?'b-half':'b-pend';
+  const conf=confMap[c.id];
+  const dyShort=c.duanyu.slice(0,4).map(d=>{const[cl,m]=mark(d.ok);return `<li class="${cl}" style="font-size:13.5px;padding:6px 10px"><span class="mk">${m}</span>${termify(esc(d.t))}</li>`}).join('');
+  return `<div class="cmp-col ${slot}">
+    <div class="cc-title">${c.id} · ${c.title}<span class="badge ${rb}">${c.result}</span></div>
+    <div class="cc-meta">${c.cat} · ${c.date} · ${c.benName}${c.bianName?' → '+c.bianName:''}${conf?' · 置信度 '+conf+'%':''}</div>
+    ${guapanHTML(c)}
+    <h3 style="font-size:14.5px;margin:12px 0 6px">断语（前 4 条）</h3>
+    <ul class="dy">${dyShort}</ul>
+    <div class="revbox" style="font-size:13px"><b>复盘：</b>${termify(esc(c.review.slice(0,80)))}${c.review.length>80?'…':''}</div>
+  </div>`;
+}
+function openCmpView(){
+  if(cmpSel.length!==2)return;
+  const [a,b]=cmpSel.map(id=>CASES.find(c=>c.id===id));
+  $('#cmp-cols').innerHTML=cmpColHTML(a,'cmp-a')+cmpColHTML(b,'cmp-b');
+  const shared=a.newRules.filter(r=>b.newRules.includes(r));
+  $('#cmp-foot').innerHTML=shared.length
+    ?`<div class="cmp-shared"><b style="color:var(--cinnabar)">⚖ 共享规则：</b>${shared.map(r=>`<a class="rtag" href="#rules">${r}</a>`).join('')}<span style="color:var(--ink2)">　两案复用同一条纠偏条款，点击编号可查看原文。</span></div>`
+    :`<div class="cmp-shared"><b>共享规则：</b><span style="color:var(--ink2)">无——两案未产出共同规则，可对照取象思路差异。</span></div>`;
+  $('#cmp-view').classList.add('show');$('#cmp-mask').classList.add('show');
+  document.body.style.overflow='hidden';
+  $('#cmp-view').scrollTop=0;
+  bindTerms();
+}
+function closeCmpView(){
+  $('#cmp-view').classList.remove('show');$('#cmp-mask').classList.remove('show');
+  document.body.style.overflow='';
+}
+$('#cmp-go').addEventListener('click',openCmpView);
+$('#cmp-close').addEventListener('click',closeCmpView);
+$('#cmp-mask').addEventListener('click',closeCmpView);
+$('#cmp-clear').addEventListener('click',()=>{cmpSel=[];renderCases();updateCmpBar();});
+
+/* ---- 分享卡片（canvas 绘制） ---- */
+const shareMask=$('#share-mask'),shareModal=$('#share-modal');
+let shareCase=null;
+function rr(ctx,x,y,w,h,r){  /* roundRect 兼容 */
+  if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,r);return;}
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+}
+function drawShareCard(c){
+  const cv=$('#share-canvas'),ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H);
+  /* 宣纸底 + 织点 */
+  ctx.fillStyle='#f6f1e7';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(120,100,70,.07)';
+  for(let y=24;y<H;y+=24)for(let x=(y/24%2)*12;x<W;x+=24){ctx.fillRect(x,y,1.6,1.6);}
+  /* 边框 */
+  ctx.strokeStyle='#a63a2a';ctx.lineWidth=3;
+  rr(ctx,26,26,W-52,H-52,18);ctx.stroke();
+  ctx.strokeStyle='rgba(168,130,60,.55)';ctx.lineWidth=1;
+  rr(ctx,40,40,W-80,H-80,12);ctx.stroke();
+  /* 标题区 */
+  ctx.fillStyle='#a63a2a';ctx.font='900 40px "Noto Serif SC","STSong",serif';
+  ctx.textAlign='center';
+  ctx.fillText('六爻案例库',W/2,110);
+  ctx.fillStyle='#6b6157';ctx.font='22px serif';
+  ctx.fillText('断 卦 · 复 盘 · 进 化',W/2,148);
+  ctx.strokeStyle='#d8cdb8';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(120,176);ctx.lineTo(W-120,176);ctx.stroke();
+  /* 案例信息 */
+  ctx.fillStyle='#2e2a26';ctx.font='900 34px "Noto Serif SC",serif';
+  ctx.fillText(c.title,W/2,238);
+  ctx.fillStyle='#6b6157';ctx.font='22px serif';
+  ctx.fillText(`${c.id} · ${c.cat} · ${c.date}`,W/2,276);
+  ctx.fillStyle='#6b6157';ctx.font='21px serif';
+  const q=c.question.length>18?c.question.slice(0,18)+'…':c.question;
+  ctx.fillText('【占问】'+q,W/2,312);
+  /* 卦名 */
+  ctx.fillStyle='#2e2a26';ctx.font='900 44px "Noto Serif SC",serif';
+  ctx.fillText(c.benName+(c.bianName?' → '+c.bianName:''),W/2,388);
+  /* 卦象六爻：自上而下 */
+  const cy0=440,gap=54,bw=280,bh=22;
+  c.lines.forEach((l,i)=>{
+    const y=cy0+i*gap;
+    const dong=!!l.move;
+    ctx.fillStyle=dong?'#a63a2a':'#2e2a26';
+    if(l.yang){rr(ctx,W/2-bw/2,y,bw,bh,6);ctx.fill();}
+    else{
+      rr(ctx,W/2-bw/2,y,bw*.42,bh,6);ctx.fill();
+      rr(ctx,W/2+bw/2-bw*.42,y,bw*.42,bh,6);ctx.fill();
+    }
+    if(dong){
+      ctx.fillStyle='#a63a2a';ctx.font='900 30px serif';
+      ctx.textAlign='right';ctx.fillText(l.move==='o'?'○':'×',W/2+bw/2+52,y+bh-2);
+    }
+    if(l.shi||l.ying){
+      ctx.fillStyle=l.shi?'#a63a2a':'#3e7a6b';
+      ctx.font='900 24px serif';ctx.textAlign='left';
+      ctx.fillText(l.shi?'世':'应',W/2-bw/2-52,y+bh-2);
+    }
+    ctx.textAlign='center';
+  });
+  /* 结果徽章 */
+  const yRes=cy0+6*gap+22;
+  const okCol=c.result==='对'?'#3e7a4e':c.result==='错'?'#a63a2a':c.result==='半对'?'#a8823c':'#8a8a8a';
+  ctx.strokeStyle=okCol;ctx.lineWidth=2.5;
+  const resTxt='断卦结果：'+c.result;
+  ctx.font='900 28px "Noto Serif SC",serif';
+  const tw=ctx.measureText(resTxt).width;
+  rr(ctx,W/2-tw/2-24,yRes-38,tw+48,52,26);ctx.stroke();
+  ctx.fillStyle=okCol;ctx.fillText(resTxt,W/2,yRes-2);
+  /* 底部 */
+  ctx.strokeStyle='#d8cdb8';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(120,H-120);ctx.lineTo(W-120,H-120);ctx.stroke();
+  ctx.fillStyle='#6b6157';ctx.font='20px serif';
+  ctx.fillText(c.time,W/2,H-82);
+  ctx.fillStyle='#a8823c';ctx.font='21px serif';
+  ctx.fillText('mrzmrsl.github.io/liuyao-casebook',W/2,H-48);
+}
+function openShare(id){
+  shareCase=CASES.find(c=>c.id===id);
+  if(!shareCase)return;
+  drawShareCard(shareCase);
+  shareMask.classList.add('show');shareModal.classList.add('show');
+}
+function closeShare(){
+  shareMask.classList.remove('show');shareModal.classList.remove('show');
+}
+$('#share-close').addEventListener('click',closeShare);
+shareMask.addEventListener('click',closeShare);
+$('#share-dl').addEventListener('click',()=>{
+  if(!shareCase)return;
+  const a=document.createElement('a');
+  a.download=`${shareCase.id}-${shareCase.title}.png`;
+  a.href=$('#share-canvas').toDataURL('image/png');
+  a.click();
+  toast('✓ 卡片已保存');
+});
+
+/* 工具条事件委托 */
+document.addEventListener('click',e=>{
+  const btn=e.target.closest('.tool-btn');
+  if(!btn)return;
+  e.preventDefault();e.stopPropagation();
+  const{act,id}=btn.dataset;
+  if(act==='copy')copyLink(id);
+  else if(act==='share')openShare(id);
+  else if(act==='cmp')toggleCmp(id);
+});
+
+/* toast 样式（JS 动态注入，避免再改 CSS 块） */
+(function(){
+  const s=document.createElement('style');
+  s.textContent='#toast{position:fixed;left:50%;bottom:76px;transform:translate(-50%,20px);background:var(--ink);color:var(--paper);padding:9px 22px;border-radius:999px;font-size:14px;z-index:120;opacity:0;pointer-events:none;transition:all .25s;max-width:86vw;text-align:center}#toast.show{opacity:.95;transform:translate(-50%,0)}';
+  document.head.appendChild(s);
+})();
+
+/* ================= 术语词典 ================= */
+(function(){
+  const groups=[
+    {name:'六亲',keys:['妻财','官鬼','父母','兄弟','子孙','用神']},
+    {name:'爻位与动静',keys:['世爻','应爻','动爻','伏神','暗动','卦身']},
+    {name:'卦理与应期',keys:['空亡','六合','六冲','六神','纳甲','三合局','进神','回头生','回头克','月建','日辰','应期']},
+    {name:'神煞',keys:['驿马','桃花']},
+    {name:'门类与方法',keys:['射覆','纠偏规则']},
+  ];
+  const grouped=new Set(groups.flatMap(g=>g.keys));
+  function render(kw){
+    kw=(kw||'').trim();
+    const html=groups.map(g=>{
+      const items=g.keys.filter(k=>GLOSSARY[k]&&(!kw||k.includes(kw)||GLOSSARY[k].includes(kw)));
+      if(!items.length)return '';
+      return `<div class="gloss-group"><div class="gg-title">${g.name}</div><div class="gloss-grid">${
+        items.map(k=>`<div class="gcard"><div class="gt">${k}</div><div class="gd">${esc(GLOSSARY[k])}</div></div>`).join('')
+      }</div></div>`;
+    }).join('');
+    const rest=Object.keys(GLOSSARY).filter(k=>!grouped.has(k)&&(!kw||k.includes(kw)||GLOSSARY[k].includes(kw)));
+    const restHtml=rest.length?`<div class="gloss-group"><div class="gg-title">其他</div><div class="gloss-grid">${
+      rest.map(k=>`<div class="gcard"><div class="gt">${k}</div><div class="gd">${esc(GLOSSARY[k])}</div></div>`).join('')
+    }</div></div>`:'';
+    $('#glosslist').innerHTML=(html+restHtml)||'<p style="color:var(--ink2)">无匹配术语</p>';
+  }
+  render('');
+  let gqTimer=null;
+  $('#gq').addEventListener('input',e=>{
+    clearTimeout(gqTimer);
+    gqTimer=setTimeout(()=>render(e.target.value),120);
+  });
+})();
+
+/* ================= PWA：Service Worker 注册 ================= */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+
+/* ESC 统一关闭所有弹层 */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeSheet();closeCmpView();closeShare();}
 });
 
 bindTerms();

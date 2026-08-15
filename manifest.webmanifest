@@ -1,0 +1,15 @@
+{
+  "name": "六爻案例库 · 断卦复盘看板",
+  "short_name": "六爻案例库",
+  "description": "六爻断卦案例复盘库：全要素卦盘、断语逐条验证、纠偏规则库、术语白话词典。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f6f1e7",
+  "theme_color": "#a63a2a",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
