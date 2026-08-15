@@ -187,6 +187,11 @@ details.case:not([open]) .case-head{border-bottom:none}
 @media(max-width:640px){.gua{min-width:252px;padding:12px 10px}.yao{grid-template-columns:32px 126px 44px 14px 18px}.ymain{grid-template-columns:126px 44px 14px 18px;gap:3px}.bygua .yao,.bygua .ymain{grid-template-columns:104px 44px 18px}.ytxt{font-size:13.5px}.ysub{font-size:10.5px}}
 .dy{list-style:none;margin:8px 0}
 .dy li{padding:8px 12px;border-left:3px solid var(--line);margin-bottom:6px;background:var(--paper);border-radius:0 8px 8px 0;font-size:14.5px}
+@media(max-width:640px){
+  .dy li{font-size:15px;padding:10px 14px}
+  details.yici .ybody{font-size:13.5px}
+  details.yici .ybody .vv{font-size:12.5px}
+}
 .dy li.ok{border-left-color:var(--ok)} .dy li.no{border-left-color:var(--bad)}
 .dy li.half{border-left-color:var(--half)} .dy li.pend{border-left-color:var(--pend)}
 .dy .mk{font-weight:900;margin-right:6px}
@@ -227,6 +232,22 @@ mark{background:var(--mark-bg);color:var(--mark-text);border-radius:2px;padding:
 .term{border-bottom:1px dashed var(--cinnabar);cursor:help;color:inherit}
 #pop{position:fixed;z-index:99;max-width:300px;background:#2e2a26;color:#f6f1e7;font-size:13.5px;line-height:1.7;padding:12px 16px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.3);display:none}
 #pop .pt{font-weight:900;color:#e8c87a;margin-bottom:4px}
+/* ---- 手机端术语底部抽屉 ---- */
+#sheet-mask{position:fixed;inset:0;background:rgba(30,26,38,.45);z-index:98;opacity:0;pointer-events:none;transition:opacity .25s}
+#sheet-mask.show{opacity:1;pointer-events:auto}
+#pop-sheet{position:fixed;left:0;right:0;bottom:0;z-index:100;background:#2e2a26;color:#f6f1e7;border-radius:18px 18px 0 0;padding:14px 22px calc(22px + env(safe-area-inset-bottom));box-shadow:0 -12px 44px rgba(0,0,0,.45);max-height:62vh;overflow-y:auto;visibility:hidden;transform:translateY(104%);transition:transform .28s cubic-bezier(.32,.72,.24,1),visibility .28s}
+#pop-sheet.show{visibility:visible;transform:translateY(0)}
+#pop-sheet .grab{width:40px;height:4px;border-radius:2px;background:rgba(246,241,231,.28);margin:0 auto 12px}
+#pop-sheet .pt{font-weight:900;color:#e8c87a;font-size:17px;margin-bottom:8px;letter-spacing:.05em}
+#pop-sheet .pb{font-size:15.5px;line-height:1.95}
+#sheet-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;border:1px solid rgba(246,241,231,.25);background:transparent;color:#f6f1e7;font-size:14px;cursor:pointer;line-height:1}
+/* 触摸设备：术语加大触控区 + 淡色底提示可点 */
+@media(hover:none),(pointer:coarse){
+  .term{padding:2px 3px;margin:0 -1px;border-radius:4px;background:rgba(166,58,42,.07);-webkit-tap-highlight-color:rgba(166,58,42,.18)}
+  [data-theme="dark"] .term{background:rgba(212,87,74,.12)}
+  #pop{display:none!important}
+}
+html{-webkit-text-size-adjust:100%}
 /* ---- 附录 ---- */
 details{background:var(--paper2);border:1px solid var(--line);border-radius:10px;margin-bottom:12px}
 summary{cursor:pointer;padding:14px 20px;font-weight:700;letter-spacing:.05em;list-style:none}
@@ -272,6 +293,18 @@ footer{margin:60px 0 30px;text-align:center;color:var(--ink2);font-size:13px;bor
   .donut-num{font-size:34px}
   .related-item{font-size:12.5px;padding:5px 10px}
   .back-top{bottom:16px;right:16px;width:36px;height:36px}
+  /* 手机端触控与排版细节 */
+  .case-head .meta{margin-left:0;width:100%;line-height:1.6}
+  .case-head{gap:6px}
+  .tab,.rule-filters .tab{padding:9px 16px;font-size:14px}
+  #q{padding:11px 18px;font-size:16px}   /* ≥16px 防 iOS 聚焦自动放大 */
+  summary{padding:14px 16px}
+  .rtag{padding:3px 10px;margin:2px 4px 2px 0;display:inline-block}
+  nav .wrap{scrollbar-width:none}
+  nav .wrap::-webkit-scrollbar{display:none}
+  .card{padding:16px}
+  .dash{gap:16px}
+  body{-webkit-tap-highlight-color:transparent}
 }
 </style>
 </head>
@@ -306,7 +339,7 @@ footer{margin:60px 0 30px;text-align:center;color:var(--ink2);font-size:13px;bor
 </section>
 <section id="cases">
   <h2>案例库</h2>
-  <p class="sec-desc">每案含全要素卦盘（六神·纳甲·六亲·世应·伏神·动变·空亡）与断语逐条验证。点按带虚线下划线的术语可见白话注释。</p>
+  <p class="sec-desc">每案含全要素卦盘（六神·纳甲·六亲·世应·伏神·动变·空亡）与断语逐条验证。点按虚线下划线/淡色底的术语可见白话注释（手机端从底部弹出）。</p>
   <div class="searchbar">
     <input id="q" type="search" placeholder="搜索案例：卦名 / 占问 / 断语 / 规则编号…">
     <span id="qcount"></span>
@@ -328,6 +361,9 @@ footer{margin:60px 0 30px;text-align:center;color:var(--ink2);font-size:13px;bor
 </div>
 <footer>六爻案例库 · 脱敏公开镜像 · 数据以本地 Markdown 库为唯一源 · <span id="upd2"></span></footer>
 <div id="pop"><div class="pt"></div><div class="pb"></div></div>
+<!-- 手机端术语底部抽屉 -->
+<div id="sheet-mask"></div>
+<div id="pop-sheet"><div class="grab"></div><button id="sheet-close" aria-label="关闭">✕</button><div class="pt"></div><div class="pb"></div></div>
 <button class="back-top" id="backTop" title="回到顶部">↑</button>
 <script src="assets/data.js"></script>
 <script>
@@ -735,25 +771,46 @@ $$('#appx details').forEach(d=>{
 
 /* ================= 术语注释 ================= */
 const pop=$('#pop');
+const sheet=$('#pop-sheet'),mask=$('#sheet-mask'),sheetClose=$('#sheet-close');
+const isTouch=matchMedia('(hover:none),(pointer:coarse)').matches;
 function showPop(t,x,y){
   pop.querySelector('.pt').textContent=t;
   pop.querySelector('.pb').textContent=GLOSSARY[t]||'';
   pop.style.display='block';
   const w=pop.offsetWidth,h=pop.offsetHeight;
-  pop.style.left=Math.min(x,innerWidth-w-12)+'px';
+  pop.style.left=Math.max(8,Math.min(x,innerWidth-w-12))+'px';
   pop.style.top=(y+h+20>innerHeight?y-h-12:y+16)+'px';
 }
 function hidePop(){pop.style.display='none'}
+/* 手机端：底部抽屉 */
+function openSheet(t){
+  sheet.querySelector('.pt').textContent=t;
+  sheet.querySelector('.pb').textContent=GLOSSARY[t]||'';
+  sheet.classList.add('show');mask.classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeSheet(){
+  sheet.classList.remove('show');mask.classList.remove('show');
+  document.body.style.overflow='';
+}
+mask.addEventListener('click',closeSheet);
+sheetClose.addEventListener('click',closeSheet);
 function bindTerms(){
   $$('.term').forEach(el=>{
-    el.onmouseenter=e=>{const r=el.getBoundingClientRect();showPop(el.dataset.t,Math.max(8,r.left),r.bottom)};
-    el.onmouseleave=hidePop;
-    el.onclick=e=>{e.stopPropagation();const r=el.getBoundingClientRect();
-      if(pop.style.display==='block'&&pop.querySelector('.pt').textContent===el.dataset.t)hidePop();
-      else showPop(el.dataset.t,Math.max(8,r.left),r.bottom+scrollY)};
+    if(isTouch){
+      /* 触摸设备：仅点击触发底部抽屉，不绑 mouse 事件（避免 tap 模拟触发小气泡） */
+      el.onclick=e=>{e.stopPropagation();e.preventDefault();openSheet(el.dataset.t)};
+    }else{
+      el.onmouseenter=e=>{const r=el.getBoundingClientRect();showPop(el.dataset.t,Math.max(8,r.left),r.bottom)};
+      el.onmouseleave=hidePop;
+      el.onclick=e=>{e.stopPropagation();const r=el.getBoundingClientRect();
+        if(pop.style.display==='block'&&pop.querySelector('.pt').textContent===el.dataset.t)hidePop();
+        else showPop(el.dataset.t,Math.max(8,r.left),r.bottom)};  /* fixed 定位用视口坐标 */
+    }
   });
 }
 document.addEventListener('click',e=>{if(!e.target.classList.contains('term'))hidePop()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
 
 /* ================= 回到顶部 ================= */
 const backTop=$('#backTop');
