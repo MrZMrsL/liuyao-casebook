@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#1a1825" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="description" content="六爻断卦案例复盘库：全要素卦盘、断语逐条验证、纠偏规则库 R1–R17、术语白话词典。">
+<meta name="description" content="六爻断卦案例复盘库：全要素卦盘、断语逐条验证、纠偏规则库 R1–R21、术语白话词典。">
 <style>
 :root{
   --paper:#f6f1e7; --paper2:#efe8d8; --ink:#2e2a26; --ink2:#6b6157;
@@ -408,7 +408,7 @@ footer{margin:60px 0 30px;text-align:center;color:var(--ink2);font-size:13px;bor
   <div id="caselist"></div>
 </section>
 <section id="rules">
-  <h2>纠偏规则库 <span style="font-size:14px;color:var(--ink2)">R1–R17</span></h2>
+  <h2>纠偏规则库 <span style="font-size:14px;color:var(--ink2)">R1–R21</span></h2>
   <p class="sec-desc">从复盘中提炼的"断卦前必查"条款。<span class="st-生效">●生效中</span> / <span class="st-假设">●假设（单案支撑，待复验转正）</span></p>
   <div class="rule-filters" id="ruleFilters"></div>
   <div id="rulelist"></div>
@@ -461,6 +461,12 @@ footer{margin:60px 0 30px;text-align:center;color:var(--ink2);font-size:13px;bor
 const $=s=>document.querySelector(s);
 const $$=s=>document.querySelectorAll(s);
 const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+/* ---- 提前声明：弹层与全局状态（供 renderCases/bindTerms 等早期初始化调用） ---- */
+const pop=$('#pop');
+const sheet=$('#pop-sheet'),mask=$('#sheet-mask'),sheetClose=$('#sheet-close');
+const isTouch=matchMedia('(hover:none),(pointer:coarse)').matches;
+let cmpSel=[];
+let toastTimer=null;
 function escapeRegex(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
 
 /* 置信度查找表 */
@@ -495,19 +501,19 @@ function termify(html){
 /* ================= 搜索高亮 ================= */
 function highlightSearch(container,kw){
   if(!kw)return;
-  $$('mark',container).forEach(m=>{
+  container.querySelectorAll('mark').forEach(m=>{
     const t=document.createTextNode(m.textContent);
     m.replaceWith(t);
   });
   const regex=new RegExp(`(${escapeRegex(kw)})`,'gi');
+  const testRe=new RegExp(escapeRegex(kw),'i'); /* 不带 g，避免 lastIndex 状态污染 */
   const walker=document.createTreeWalker(container,NodeFilter.SHOW_TEXT,{
     acceptNode(node){
       if(!node.textContent.trim())return NodeFilter.FILTER_REJECT;
       const p=node.parentElement;
       if(!p)return NodeFilter.FILTER_REJECT;
       if(p.tagName==='SCRIPT'||p.tagName==='STYLE')return NodeFilter.FILTER_REJECT;
-      if(p.classList.contains('term'))return NodeFilter.FILTER_REJECT;
-      if(regex.test(node.textContent))return NodeFilter.FILTER_ACCEPT;
+      if(testRe.test(node.textContent))return NodeFilter.FILTER_ACCEPT;
       return NodeFilter.FILTER_REJECT;
     }
   });
@@ -765,8 +771,12 @@ function renderCases(){
   applyDeepLink();
 }
 
-/* 深色模式适配：监听 data-theme 变化重新渲染 SVG 内联色 */
-const observer=new MutationObserver(()=>{renderCases();});
+/* 深色模式适配：监听 data-theme 变化重新渲染（保留各卡展开状态） */
+const observer=new MutationObserver(()=>{
+  const openIds=[...document.querySelectorAll('#caselist details.case[open]')].map(d=>d.id);
+  renderCases();
+  openIds.forEach(id=>{const d=document.getElementById(id);if(d)d.open=true;});
+});
 observer.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 
 renderCases();
@@ -818,7 +828,7 @@ document.addEventListener('toggle',e=>{
 },true);
 
 /* ================= 规则库筛选 ================= */
-const ruleCats=['全部','射覆','失物','财运'];
+const ruleCats=['全部','射覆','失物','财运','行人出行'];
 const ruleStatuses=['全部','生效','假设'];
 let ruleCatFilter='全部',ruleStatusFilter='全部';
 $('#ruleFilters').innerHTML=`
@@ -888,9 +898,6 @@ $$('#appx details').forEach(d=>{
 });
 
 /* ================= 术语注释 ================= */
-const pop=$('#pop');
-const sheet=$('#pop-sheet'),mask=$('#sheet-mask'),sheetClose=$('#sheet-close');
-const isTouch=matchMedia('(hover:none),(pointer:coarse)').matches;
 function showPop(t,x,y){
   pop.querySelector('.pt').textContent=t;
   pop.querySelector('.pb').textContent=GLOSSARY[t]||'';
@@ -951,7 +958,6 @@ document.addEventListener('keydown',e=>{
 });
 
 /* ================= 案例工具条：复制链接 / 分享卡片 / 加入对比 ================= */
-let toastTimer=null;
 function toast(msg){
   let t=$('#toast');
   if(!t){t=document.createElement('div');t.id='toast';document.body.appendChild(t);}
@@ -975,7 +981,6 @@ async function copyLink(id){
 }
 
 /* ---- 案例对比 ---- */
-let cmpSel=[];
 function syncCmpButtons(){
   cmpSel.forEach(id=>{
     const b=$('#cmpbtn-'+id);
