@@ -331,9 +331,34 @@ footer{margin:60px 0 30px;text-align:center;color:var(--ink2);font-size:13px;bor
 #share-modal .sm-actions{display:flex;gap:10px;margin-top:14px;justify-content:flex-end}
 #share-dl{border:none;background:var(--cinnabar);color:#fff;border-radius:999px;padding:8px 20px;font-family:inherit;font-size:14px;cursor:pointer}
 #share-close{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 20px;font-family:inherit;font-size:14px;color:var(--ink);cursor:pointer}
+
+/* ---- 卦盘工具条（精简切换 + 横屏） ---- */
+.gua-tools{display:flex;gap:8px;justify-content:flex-end;margin-bottom:8px}
+.gua-tools .gt-btn{border:1px solid var(--line);background:var(--paper2);border-radius:999px;padding:4px 14px;font-size:12.5px;font-family:inherit;color:var(--ink2);cursor:pointer}
+.gua-tools .gt-btn:hover{border-color:var(--cinnabar);color:var(--cinnabar)}
+/* 精简模式（默认仅手机端生效）：隐藏六神列与副行 */
+@media(max-width:760px){
+  .guapan.compact .yao{grid-template-columns:1fr;grid-template-areas:"main"}
+  .guapan.compact .god,.guapan.compact .ysub{display:none}
+}
+@media(min-width:761px){
+  .gua-tools .gt-cmp{display:none}  /* 桌面端不需要精简切换 */
+}
+/* ---- 卦盘全屏横屏层 ---- */
+#gua-full{position:fixed;inset:0;z-index:110;background:var(--paper);display:none;flex-direction:column}
+#gua-full.show{display:flex}
+#gua-full .gf-head{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+#gua-full .gf-head .t{font-weight:900;letter-spacing:.15em}
+#gua-full .gf-close{margin-left:auto;border:1px solid var(--line);background:var(--paper2);border-radius:999px;padding:7px 18px;font-family:inherit;font-size:14px;color:var(--ink);cursor:pointer}
+#gua-full .gf-body{flex:1;overflow:auto;padding:14px}
+#gua-full .gf-body .guapan{margin:0 auto;min-height:100%;align-items:center}
+#gua-full .gf-body .guapan .gua{min-width:320px}
+#gua-full .rotate-tip{display:none;text-align:center;color:var(--gold);font-size:13px;padding:6px}
+@media(orientation:portrait){#gua-full.land-fail .rotate-tip{display:block}}
+
 @media print{
   body{background:#fff;font-size:12px}
-  nav,#pop,.back-top,.theme-toggle,#cmp-bar,#cmp-view,#share-modal,#share-mask,.case-tools{display:none!important}
+  nav,#pop,.back-top,.theme-toggle,#cmp-bar,#cmp-view,#share-modal,#share-mask,.case-tools,.gua-tools,#gua-full{display:none!important}
   .case,.card,details{break-inside:avoid;border-color:#999}
   details:not([open]) .body,details.case:not([open]) .case-body{display:block!important}
   summary::after{display:none}
@@ -446,6 +471,12 @@ footer{margin:60px 0 30px;text-align:center;color:var(--ink2);font-size:13px;bor
   <div class="cv-head"><h2>案例对照</h2><button id="cmp-close">关闭 ✕</button></div>
   <div class="cmp-cols" id="cmp-cols"></div>
   <div id="cmp-foot"></div>
+</div>
+<!-- 卦盘全屏横屏层 -->
+<div id="gua-full" role="dialog" aria-label="卦盘全屏查看">
+  <div class="gf-head"><span class="t">卦盘 · 全屏</span><button class="gf-close" id="gf-close">关闭 ✕</button></div>
+  <div class="rotate-tip">📱 旋转手机至横屏，三卦并排效果最佳</div>
+  <div class="gf-body"></div>
 </div>
 <!-- 分享卡片弹层 -->
 <div id="share-mask"></div>
@@ -677,8 +708,56 @@ function huGuaHTML(lines){
   <div class="gname">${h.name}</div><div class="ggong">${h.upper}上 ${h.lower}下</div>${rows}${yiciHTML(h.name,[])}</div>`;
 }
 function guapanHTML(c){
-  return `<div class="guapan">${guaHTML(c.benName,c.benGong,c.lines,false,'本卦')}${huGuaHTML(c.lines)}${c.bianName?guaHTML(c.bianName,c.bianGong,c.lines,true,'变卦'):''}</div>`;
+  return `<div class="guapan-wrap">
+  <div class="gua-tools">
+    <button class="gt-btn gt-cmp" data-gact="compact">精简 / 全要素</button>
+    <button class="gt-btn" data-gact="full">⛶ 全屏横屏</button>
+  </div>
+  <div class="guapan${matchMedia('(max-width:760px)').matches?' compact':''}">${guaHTML(c.benName,c.benGong,c.lines,false,'本卦')}${huGuaHTML(c.lines)}${c.bianName?guaHTML(c.bianName,c.bianGong,c.lines,true,'变卦'):''}</div>
+  </div>`;
 }
+/* ---- 卦盘全屏横屏 ---- */
+const guaFull=$('#gua-full');
+function openGuaFull(gp){
+  const body=guaFull.querySelector('.gf-body');
+  body.innerHTML='';
+  const clone=gp.cloneNode(true);
+  clone.classList.remove('compact');           /* 全屏恢复全要素 */
+  body.appendChild(clone);
+  guaFull.classList.add('show');
+  document.body.style.overflow='hidden';
+  let locked=false;
+  /* 全屏 + 横屏锁定（安卓 Chrome 支持；iOS Safari 不支持则提示手动旋转） */
+  const req=guaFull.requestFullscreen&&guaFull.requestFullscreen();
+  if(req&&req.then){
+    req.then(()=>{
+      if(screen.orientation&&screen.orientation.lock){
+        return screen.orientation.lock('landscape').then(()=>{locked=true;}).catch(()=>{});
+      }
+    }).catch(()=>{}).finally(()=>{
+      setTimeout(()=>{if(!locked&&innerWidth<innerHeight)guaFull.classList.add('land-fail');},350);
+    });
+  }else{
+    setTimeout(()=>{if(innerWidth<innerHeight)guaFull.classList.add('land-fail');},350);
+  }
+  bindTerms();
+}
+function closeGuaFull(){
+  guaFull.classList.remove('show');guaFull.classList.remove('land-fail');
+  document.body.style.overflow='';
+  if(document.fullscreenElement){document.exitFullscreen().catch(()=>{});}
+  if(screen.orientation&&screen.orientation.unlock){screen.orientation.unlock();}
+}
+$('#gf-close').addEventListener('click',closeGuaFull);
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&guaFull.classList.contains('show'))closeGuaFull();});
+/* 卦盘工具条事件委托 */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-gact]');
+  if(!b)return;
+  const wrap=b.closest('.guapan-wrap');
+  if(b.dataset.gact==='compact'){wrap.querySelector('.guapan').classList.toggle('compact');}
+  else if(b.dataset.gact==='full'){openGuaFull(wrap.querySelector('.guapan'));}
+});
 
 /* ================= 关联案例 ================= */
 function findRelated(c){
@@ -1200,7 +1279,7 @@ if('serviceWorker' in navigator){
 
 /* ESC 统一关闭所有弹层 */
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeSheet();closeCmpView();closeShare();}
+  if(e.key==='Escape'){closeSheet();closeCmpView();closeShare();closeGuaFull();}
 });
 
 bindTerms();
